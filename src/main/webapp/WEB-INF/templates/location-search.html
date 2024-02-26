@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div th:fragment="copy">
+        <form action="/api/weather" method="get">
+            <input type="search" id="location-input" list="locations" name="name" placeholder="Enter location">
+            <datalist id="locations">
+            </datalist>
+            <input id="hidden" type="hidden" name="latlon">
+            <input type="submit" value="Search">
+        </form>
+        <hr>
+        <script type="text/javascript" th:src="@{/static/js/location-search.js}"></script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Main</title>
+    </head>
+    <body>
+        <div th:fragment="copy">
+            <div th:insert="~{location-search::copy}">&copy; Location search </div>
+            <div th:insert="~{added-locations::copy}">&copy; Added locations </div>
+        </div>
+    </body>
+</html>

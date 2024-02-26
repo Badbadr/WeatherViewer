@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <div th:fragment="copy">
+            <div th:if="${session.user == null}">
+                <form th:action="@{/api/signin}" method="post">
+                    <input type="text" name="login" placeholder="Login"/>
+                    <input type="password" name="password" placeholder="Password"/>
+                    <input type="submit" value="Sign in"/>
+                    <input th:formaction="@{/api/signup}" type="submit" value="Sign up"/>
+                </form>
+            </div>
+            <div th:unless="${session.user == null}">
+                <form th:action="@{/api/logout}" method="post">
+                    <span th:text="${session.user.login}"></span>
+                    <input type="submit" value="Logout"/>
+                </form>
+            </div>
+            <hr>
+        </div>
+    </body>
+</html>
+

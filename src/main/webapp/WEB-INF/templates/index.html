@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Weather Viewer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <div th:insert="~{header::copy}">&copy; Header </div>
+        <div th:unless="${session.user == null}">
+            <div th:insert="~{main-page::copy}">&copy; Main </div>
+        </div>
+        <script type="text/javascript" th:src="@{/static/js/lib/jquery.js}"></script>
+    </body>
+</html>
+
