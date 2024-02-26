@@ -1,5 +1,6 @@
 package service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import entity.Location;
 import lombok.RequiredArgsConstructor;
 import repository.jpa.LocationRepository;
@@ -27,7 +28,7 @@ public class LocationService {
         return openWeatherApi.getCityCoordinatesByName(name);
     }
 
-    public WeatherResponse getWeatherByLatLon(double lat, double lon) throws ExecutionException, InterruptedException {
+    public WeatherResponse getWeatherByLatLon(double lat, double lon) throws ExecutionException, InterruptedException, JsonProcessingException {
         return openWeatherApi.getWeather(lat, lon);
     }
 }
