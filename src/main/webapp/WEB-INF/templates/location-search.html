@@ -5,16 +5,24 @@
     <title>Title</title>
 </head>
 <body>
-    <div th:fragment="copy">
-        <form action="/api/weather" method="get">
-            <input type="search" id="location-input" list="locations" name="name" placeholder="Enter location">
-            <datalist id="locations">
-            </datalist>
-            <input id="hidden" type="hidden" name="latlon">
-            <input type="submit" value="Search">
-        </form>
-        <hr>
-        <script type="text/javascript" th:src="@{/static/js/location-search.js}"></script>
+<div th:fragment="copy">
+    <form action="/api/weather" method="get">
+        <input type="search" id="location-input" list="locations" name="name" placeholder="Enter location">
+        <datalist id="locations">
+        </datalist>
+        <input id="hidden" type="hidden" name="latlon">
+        <input type="submit" value="Search">
+    </form>
+    <div th:if="${weather != null}" id="latest-found-weather">
+        <h4> Температура: </h4>
+        <span th:text="${weather.temperature}"></span>
+        <h4> Ощущается как: </h4>
+        <span th:text="${weather.feelsLikeTemperature}"></span>
+        <h4> Давление: </h4>
+        <span th:text="${weather.pressure}"></span>
     </div>
+    <hr>
+    <script type="text/javascript" th:src="@{/static/js/location-search.js}"></script>
+</div>
 </body>
 </html>

@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.web.IWebExchange;
@@ -14,6 +15,7 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import java.io.IOException;
 
+@Slf4j
 @WebServlet(urlPatterns = {"/home"})
 public class UiServlet extends HttpServlet {
 
@@ -32,10 +34,15 @@ public class UiServlet extends HttpServlet {
         renderMainPage(req, resp);
     }
 
-    private void renderMainPage(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        IWebExchange exchange = application.buildExchange(req, resp);
-        WebContext webContext = new WebContext(exchange, exchange.getLocale());
-        webContext.setVariable("session", req.getSession());
-        templateEngine.process("index", webContext, resp.getWriter());
+    private void renderMainPage(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            IWebExchange exchange = application.buildExchange(req, resp);
+            WebContext webContext = new WebContext(exchange, exchange.getLocale());
+            webContext.setVariable("session", req.getSession());
+            templateEngine.process("index", webContext, resp.getWriter());
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+
     }
 }

@@ -1,17 +1,17 @@
 package util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import util.dto.ApiCitiesResponse;
 import util.dto.ApiWeatherResponse;
 import util.dto.WeatherResponse;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 import static util.Mapper.mapper;
 
+@Slf4j
 @RequiredArgsConstructor
 public class OpenWeatherApiIntegration {
     private final static String API_KEY = "56d35719b8faab070e7324eab6b45e73";
@@ -31,19 +32,17 @@ public class OpenWeatherApiIntegration {
                 .GET()
                 .build();
         HttpClient httpClient = HttpClient.newHttpClient();
-        CompletableFuture<HttpResponse<String>> httpResponseFuture = httpClient.sendAsync(
-                httpRequest, HttpResponse.BodyHandlers.ofString());
-        httpResponseFuture.thenApply(response -> {
-            try {
-                List<ApiCitiesResponse> apiCitiesResponses = mapper.readValue(response.body(), mapper.getTypeFactory().constructCollectionType(
-                        List.class, ApiCitiesResponse.class));
-                return mapper.writeValueAsString(apiCitiesResponses);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        });
-        return httpResponseFuture.get().body();
+        try {
+            HttpResponse<String> httpResponse = httpClient.send(
+                    httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            List<ApiCitiesResponse> apiCitiesResponses = mapper.readValue(httpResponse.body(),
+                    mapper.getTypeFactory().constructCollectionType(List.class, ApiCitiesResponse.class));
+            return mapper.writeValueAsString(apiCitiesResponses);
+        } catch (Exception e) {
+            log.error("Exception while retrieving city coordinates by name: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     public WeatherResponse getWeather(double lat, double lon) throws ExecutionException, InterruptedException, JsonProcessingException {
@@ -52,29 +51,23 @@ public class OpenWeatherApiIntegration {
                 .GET()
                 .build();
         HttpClient httpClient = HttpClient.newHttpClient();
-        CompletableFuture<HttpResponse<String>> httpResponseFuture = httpClient.sendAsync(
-                httpRequest, HttpResponse.BodyHandlers.ofString());
-        httpResponseFuture.thenApply(response -> {
-            try {
-                ApiWeatherResponse apiWeatherResponse = mapper.readValue(response.body(), ApiWeatherResponse.class);
+        try {
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            ApiWeatherResponse apiWeatherResponse = mapper.readValue(httpResponse.body(), ApiWeatherResponse.class);
+            Map<String, Object> main = (Map<String, Object>) apiWeatherResponse.main();
+            Map<String, Object> wind = (Map<String, Object>) apiWeatherResponse.wind();
 
-                WeatherResponse weatherResponse = new WeatherResponse(
-                        ((Map<String, Double>) apiWeatherResponse.main()).get("temp").toString(),
-                        ((Map<String, Double>) apiWeatherResponse.main()).get("feels_like").toString(),
-                        ((Map<String, Integer>) apiWeatherResponse.main()).get("pressure").toString(),
-                        ((Map<String, Integer>) apiWeatherResponse.main()).get("humidity").toString(),
-                        ((Map<String, Double>) apiWeatherResponse.wind()).get("speed").toString(),
-                        ((Map<String, Integer>) apiWeatherResponse.wind()).get("deg").toString()
-                );
-                return weatherResponse;
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        });
-        return mapper.readValue(httpResponseFuture.get().body(), WeatherResponse.class);
+            return new WeatherResponse(
+                    main.get("temp").toString(),
+                    main.get("feels_like").toString(),
+                    main.get("pressure").toString(),
+                    main.get("humidity").toString(),
+                    wind.get("speed").toString(),
+                    wind.get("deg").toString()
+            );
+        } catch (Exception e) {
+            log.error("Exception while retrieving weather data: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 }
